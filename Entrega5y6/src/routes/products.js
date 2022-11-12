@@ -1,17 +1,21 @@
 const express = require('express');
+// const Contenedor = require("../managers/contenedorProductos");
+const ContenedorSql = require("../managers/contenedorSql");
+const options = require("../config/dbConfig");
 
 const router = express.Router();
 
-let products = []
+// const productosApi = new Contenedor("productos.txt");
+const productosApi = new ContenedorSql(options.mariaDB, "products");
 
-router.get('/',(req,res)=>{
-    res.render('products',{products});
+router.get('/',async(req,res)=>{
+    const productos = await productosApi.getAll();
+    res.send(productos);
 })
 
-router.get('/:id',(req,res)=>{
+router.get('/:id',async(req,res)=>{
     const productId = req.params.id;
-    const product = products.find(item=>item.id === productId);
-    console.log('product', product)
+    const product = await productosApi.getById(parseInt(productId));
     if(product){
         return res.send(product)
     } else{
@@ -19,33 +23,31 @@ router.get('/:id',(req,res)=>{
     }
 })
 
-router.post('/',(req,res)=>{
-    let newProduct = req.body;
-    console.log('newProduct',newProduct)
-    if(products.length===0){
-        newProduct.id = 1
-    } else {
-        newProduct.id = products.length+1;
-    }
-    products.push(newProduct);
-    res.redirect('/');
+router.post('/',async(req,res)=>{
+    const newProduct = req.body;
+    const result = await productosApi.save(newProduct);
+    res.send(result);
 })
 
-router.put('/:id',(req,res)=>{
+router.put('/:id',async(req,res)=>{
     const cambioObj = req.body;
     const productId = req.params.id;
-    const productFound = products.find(item=>item.id == productId);
-    const newObj = {...productFound, ...cambioObj};
-    console.log('new', newObj)
-    products[productId-1] = {...newObj};
-    res.send(products);
+    const result = await productosApi.updateById(parseInt(productId),cambioObj);
+    res.send(result);
 })
 
-router.delete('/:id',(req,res)=>{
+router.delete('/:id',async(req,res)=>{
     const productId = req.params.id;
-    const newProducts = products.filter(item=>item.id !== parseInt(productId));
-    products = newProducts;
-    res.send(products);
+    const result = await productosApi.deleteById(parseInt(productId));
+    res.send(result);
 })
 
-module.exports = {productsRouter:router, products};
+module.exports = {productsRouter:router};
+Footer
+© 2022 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Docs
