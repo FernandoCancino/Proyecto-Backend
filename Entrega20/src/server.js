@@ -10,6 +10,9 @@ import {
 } from "./routes/index.js";
 import cors from "cors";
 console.log("base de datos", options.mongoDB.mongoUrl)
+import {
+    userGraphqlController
+} from "./controllers/user.controller.graphql.js";
 
 const app = express();
 app.use(express.json());
@@ -23,6 +26,7 @@ app.use(cors({
 
 //routes
 app.use(apiRouter);
+app.use("/graphql", userGraphqlController());
 
 const PORT = options.server.PORT;
 app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
